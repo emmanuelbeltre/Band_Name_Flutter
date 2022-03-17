@@ -10,25 +10,36 @@ enum ServerStatus {
 }
 
 class SocketService with ChangeNotifier {
-  final ServerStatus _serverStatus = ServerStatus.Connecting;
+  ServerStatus _serverStatus = ServerStatus.Connecting;
+  late IO.Socket _socket;
+
+  ServerStatus get serverStatus => this._serverStatus;
+
+  IO.Socket get socket => this._socket;
+  Function get emit => this._socket.emit;
 
   SocketService() {
     _initConfig();
   }
 
   void _initConfig() {
-    IO.Socket socket = IO.io(
-        "http://localhost:3000",
+    this._socket = IO.io(
+        "http://10.0.0.117:3001",
+        // "http://localhost:3000",
+
         OptionBuilder()
             .setTransports(['websocket'])
             .enableAutoConnect()
             .build());
 
-    socket.onConnect((_) {
-      socket.emit('mensaje', 'conectado desde app Flutter');
-      print('connect');
+    this._socket.onConnect((_) {
+      this._serverStatus = ServerStatus.Online;
+      notifyListeners();
     });
 
-    socket.onDisconnect((_) => print('disconnect'));
+    this._socket.onDisconnect((_) {
+      this._serverStatus = ServerStatus.Offline;
+      notifyListeners();
+    });
   }
 }

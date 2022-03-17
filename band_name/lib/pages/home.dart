@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:band_name/models/band.dart';
+import 'package:band_name/services/socket_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,9 +21,25 @@ class _HomePageState extends State<HomePage> {
   ];
   @override
   Widget build(BuildContext context) {
+    final socketService = Provider.of<SocketService>(context);
+    socketService.serverStatus.toString();
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
+        actions: [
+          Container(
+            margin: EdgeInsets.only(right: 10),
+            child: socketService.serverStatus == ServerStatus.Online
+                ? Icon(
+                    Icons.check_circle,
+                    color: Colors.blue[300],
+                  )
+                : Icon(
+                    Icons.offline_bolt,
+                    color: Colors.red[300],
+                  ),
+          )
+        ],
         title: Text(
           'Band Names',
           style: TextStyle(color: Colors.black87),
@@ -36,6 +54,8 @@ class _HomePageState extends State<HomePage> {
           child: Icon(Icons.add),
           elevation: 1,
           onPressed: () {
+            print(socketService.serverStatus.toString());
+            return;
             addNewBand();
           }),
     );
